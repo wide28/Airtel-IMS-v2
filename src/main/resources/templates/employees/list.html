@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Employees — Airtel IMS</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="sidebar">
+  <a class="sidebar-brand" th:href="@{/}"><div class="brand-icon">A</div><div class="brand-text"><span class="brand-name">Airtel IMS</span><span class="brand-sub">v1.0.0</span></div></a>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/dashboard}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a th:href="@{/assets}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Assets</a>
+      <a th:href="@{/assignments}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>Issue / Return</a>
+    </nav>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Management</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/employees}" class="active"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Employees</a>
+      <a th:href="@{/departments}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg>Departments</a>
+    </nav>
+  </div>
+  <div class="sidebar-footer"><div class="sidebar-footer-text">Airtel Rwanda · Offline Mode</div></div>
+</nav>
+
+<div class="main-wrapper">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">Employees</span>
+      <span class="topbar-subtitle" th:text="${employees.totalElements + ' active staff members'}"></span>
+    </div>
+    <div class="topbar-right">
+      <a th:href="@{/employees/new}" class="btn btn-primary">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M12 4v16M4 12h16"/></svg>
+        Add Employee
+      </a>
+    </div>
+  </div>
+
+  <main class="page-content">
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <div class="card">
+      <form method="get" th:action="@{/employees}" class="filter-bar">
+        <input type="text" name="search" th:value="${search}" placeholder="Search name, ID, title…" style="min-width:240px;"/>
+        <button type="submit" class="btn btn-secondary">Search</button>
+        <a th:href="@{/employees}" class="btn btn-secondary">Clear</a>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Employee ID</th>
+              <th>Full Name</th>
+              <th>Job Title</th>
+              <th>Department</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${employees.isEmpty()}">
+              <td colspan="8">
+                <div class="empty-state">
+                  <div class="empty-state-icon">👤</div>
+                  <h3>No employees found</h3>
+                  <p><a th:href="@{/employees/new}">Add an employee</a> to get started.</p>
+                </div>
+              </td>
+            </tr>
+            <tr th:each="e : ${employees.content}">
+              <td><span class="text-mono text-sm" th:text="${e.employeeId}"></span></td>
+              <td style="font-weight:500;" th:text="${e.fullName}"></td>
+              <td th:text="${e.jobTitle ?: '—'}"></td>
+              <td th:text="${e.department != null ? e.department.name : '—'}"></td>
+              <td><span class="text-sm" th:text="${e.email ?: '—'}"></span></td>
+              <td><span class="text-sm" th:text="${e.phone ?: '—'}"></span></td>
+              <td>
+                <span th:if="${e.active}" class="badge badge-available">Active</span>
+                <span th:unless="${e.active}" class="badge badge-retired">Inactive</span>
+              </td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <a th:href="@{/employees/{id}/edit(id=${e.id})}" class="btn btn-sm btn-secondary">Edit</a>
+                  <form th:if="${e.active}" th:action="@{/employees/{id}/deactivate(id=${e.id})}" method="post"
+                        onsubmit="return confirm('Deactivate this employee?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" th:if="${employees.totalPages > 1}">
+        <span th:text="'Showing ' + (${employees.number * employees.size + 1}) + '–' + ${employees.number * employees.size + employees.numberOfElements} + ' of ' + ${employees.totalElements}"></span>
+        <div class="page-links">
+          <a th:if="${employees.hasPrevious()}" th:href="@{/employees(page=${employees.number - 1}, search=${search})}">&lsaquo;</a>
+          <th:block th:each="i : ${#numbers.sequence(0, employees.totalPages - 1)}">
+            <span th:if="${i == employees.number}" class="current" th:text="${i + 1}"></span>
+            <a th:unless="${i == employees.number}" th:href="@{/employees(page=${i}, search=${search})}" th:text="${i + 1}"></a>
+          </th:block>
+          <a th:if="${employees.hasNext()}" th:href="@{/employees(page=${employees.number + 1}, search=${search})}">&rsaquo;</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Issue / Return — Airtel IMS</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="sidebar">
+  <a class="sidebar-brand" th:href="@{/}"><div class="brand-icon">A</div><div class="brand-text"><span class="brand-name">Airtel IMS</span><span class="brand-sub">v1.0.0</span></div></a>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/dashboard}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a th:href="@{/assets}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Assets</a>
+      <a th:href="@{/assignments}" class="active"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>Issue / Return</a>
+    </nav>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Management</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/employees}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Employees</a>
+      <a th:href="@{/departments}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg>Departments</a>
+    </nav>
+  </div>
+  <div class="sidebar-footer"><div class="sidebar-footer-text">Airtel Rwanda · Offline Mode</div></div>
+</nav>
+
+<div class="main-wrapper">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">Issue / Return Log</span>
+      <span class="topbar-subtitle" th:text="${assignments.totalElements + ' total records'}"></span>
+    </div>
+    <div class="topbar-right">
+      <a th:href="@{/assignments/issue}" class="btn btn-primary">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M12 4v16M4 12h16"/></svg>
+        Issue Equipment
+      </a>
+    </div>
+  </div>
+
+  <main class="page-content">
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}"   class="alert alert-error"   th:text="${errorMessage}"></div>
+
+    <div class="card">
+      <form method="get" th:action="@{/assignments}" class="filter-bar">
+        <select name="status">
+          <option value="">All Statuses</option>
+          <option th:each="s : ${assignmentStatuses}" th:value="${s}" th:text="${s.name()}"
+                  th:selected="${filterStatus == s.name()}"></option>
+        </select>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+        <a th:href="@{/assignments}" class="btn btn-secondary">Clear</a>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Asset</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Issued By</th>
+              <th>Issue Date</th>
+              <th>Exp. Return</th>
+              <th>Actual Return</th>
+              <th>Condition</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${assignments.isEmpty()}">
+              <td colspan="11">
+                <div class="empty-state">
+                  <div class="empty-state-icon">📋</div>
+                  <h3>No assignments found</h3>
+                  <p><a th:href="@{/assignments/issue}">Issue equipment</a> to get started.</p>
+                </div>
+              </td>
+            </tr>
+            <tr th:each="a : ${assignments.content}">
+              <td class="text-mono text-sm" th:text="${a.id}"></td>
+              <td>
+                <span class="asset-tag" th:text="${a.asset.assetTag}"></span>
+                <div style="font-size:11px;color:var(--mid);margin-top:2px;" th:text="${a.asset.brand + ' ' + a.asset.model}"></div>
+              </td>
+              <td>
+                <div style="font-weight:500;" th:text="${a.employee.fullName}"></div>
+                <div style="font-size:11px;color:var(--mid);" th:text="${a.employee.employeeId}"></div>
+              </td>
+              <td th:text="${a.employee.department != null ? a.employee.department.name : '—'}"></td>
+              <td th:text="${a.issuedBy}"></td>
+              <td th:text="${a.issueDate}"></td>
+              <td th:text="${a.expectedReturnDate ?: '—'}"></td>
+              <td th:text="${a.actualReturnDate ?: '—'}"></td>
+              <td>
+                <span th:with="c=${a.conditionOnIssue.name().toLowerCase()}"
+                      th:class="'badge badge-' + ${c}"
+                      th:text="${a.conditionOnIssue.name()}"></span>
+              </td>
+              <td>
+                <span th:with="s=${a.status.name().toLowerCase()}"
+                      th:class="'badge badge-' + ${s}"
+                      th:text="${a.status.name()}"></span>
+              </td>
+              <td>
+                <a th:if="${a.status.name() == 'ACTIVE' or a.status.name() == 'OVERDUE'}"
+                   th:href="@{/assignments/{id}/return(id=${a.id})}"
+                   class="btn btn-sm btn-success">Return</a>
+                <span th:unless="${a.status.name() == 'ACTIVE' or a.status.name() == 'OVERDUE'}"
+                      style="font-size:11px;color:var(--mid);">Closed</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" th:if="${assignments.totalPages > 1}">
+        <span th:text="'Showing ' + (${assignments.number * assignments.size + 1}) + '–' + ${assignments.number * assignments.size + assignments.numberOfElements} + ' of ' + ${assignments.totalElements}"></span>
+        <div class="page-links">
+          <a th:if="${assignments.hasPrevious()}" th:href="@{/assignments(page=${assignments.number - 1}, status=${filterStatus})}">&lsaquo;</a>
+          <th:block th:each="i : ${#numbers.sequence(0, assignments.totalPages - 1)}">
+            <span th:if="${i == assignments.number}" class="current" th:text="${i + 1}"></span>
+            <a th:unless="${i == assignments.number}" th:href="@{/assignments(page=${i}, status=${filterStatus})}" th:text="${i + 1}"></a>
+          </th:block>
+          <a th:if="${assignments.hasNext()}" th:href="@{/assignments(page=${assignments.number + 1}, status=${filterStatus})}">&rsaquo;</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

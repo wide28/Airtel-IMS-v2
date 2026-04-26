@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Assets — Airtel IMS</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="sidebar">
+  <a class="sidebar-brand" th:href="@{/}"><div class="brand-icon">A</div><div class="brand-text"><span class="brand-name">Airtel IMS</span><span class="brand-sub">v1.0.0</span></div></a>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/dashboard}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a th:href="@{/assets}" class="active"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Assets</a>
+      <a th:href="@{/assignments}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>Issue / Return</a>
+    </nav>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Management</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/employees}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Employees</a>
+      <a th:href="@{/departments}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg>Departments</a>
+    </nav>
+  </div>
+  <div class="sidebar-footer"><div class="sidebar-footer-text">Airtel Rwanda · Offline Mode</div></div>
+</nav>
+
+<div class="main-wrapper">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">Assets</span>
+      <span class="topbar-subtitle" th:text="${assets.totalElements + ' devices registered'}"></span>
+    </div>
+    <div class="topbar-right">
+      <a th:href="@{/assets/new}" class="btn btn-primary">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M12 4v16M4 12h16"/></svg>
+        Register Asset
+      </a>
+    </div>
+  </div>
+
+  <main class="page-content">
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}"   class="alert alert-error"   th:text="${errorMessage}"></div>
+
+    <div class="card">
+      <!-- Filter Bar -->
+      <form method="get" th:action="@{/assets}" class="filter-bar">
+        <input type="text" name="search" th:value="${search}" placeholder="Search tag, brand, model, serial…" style="min-width:220px;"/>
+        <select name="status">
+          <option value="">All Statuses</option>
+          <option th:each="s : ${assetStatuses}" th:value="${s}" th:text="${s.name().replace('_',' ')}"
+                  th:selected="${filterStatus == s.name()}"></option>
+        </select>
+        <select name="deviceType">
+          <option value="">All Types</option>
+          <option th:each="t : ${deviceTypes}" th:value="${t}" th:text="${t.name().replace('_',' ')}"
+                  th:selected="${filterDeviceType == t.name()}"></option>
+        </select>
+        <select name="departmentId">
+          <option value="">All Departments</option>
+          <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}"
+                  th:selected="${filterDeptId == d.id}"></option>
+        </select>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+        <a th:href="@{/assets}" class="btn btn-secondary">Clear</a>
+      </form>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset Tag</th>
+              <th>Type</th>
+              <th>Brand / Model</th>
+              <th>Serial #</th>
+              <th>Department</th>
+              <th>Condition</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${assets.isEmpty()}">
+              <td colspan="8">
+                <div class="empty-state">
+                  <div class="empty-state-icon">📦</div>
+                  <h3>No assets found</h3>
+                  <p>Try adjusting your filters or <a th:href="@{/assets/new}">register a new asset</a>.</p>
+                </div>
+              </td>
+            </tr>
+            <tr th:each="asset : ${assets.content}">
+              <td><span class="asset-tag" th:text="${asset.assetTag}"></span></td>
+              <td>
+                <span th:with="t=${asset.deviceType.name().toLowerCase().replace('_','-')}"
+                      th:class="'badge badge-' + ${t}"
+                      th:text="${asset.deviceType.name().replace('_',' ')}"></span>
+              </td>
+              <td>
+                <div style="font-weight:500;" th:text="${asset.brand}"></div>
+                <div style="font-size:11px;color:var(--mid);" th:text="${asset.model}"></div>
+              </td>
+              <td><span class="text-mono text-sm" th:text="${asset.serialNumber}"></span></td>
+              <td th:text="${asset.department != null ? asset.department.name : '—'}"></td>
+              <td>
+                <span th:with="c=${asset.conditionStatus.name().toLowerCase().replace('_','-')}"
+                      th:class="'badge badge-' + ${c}"
+                      th:text="${asset.conditionStatus.name()}"></span>
+              </td>
+              <td>
+                <span th:with="s=${asset.status.name().toLowerCase().replace('_','-')}"
+                      th:class="'badge badge-' + ${s}"
+                      th:text="${asset.status.name().replace('_',' ')}"></span>
+              </td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <a th:href="@{/assets/{id}/view(id=${asset.id})}" class="btn btn-sm btn-secondary">View</a>
+                  <a th:href="@{/assets/{id}/edit(id=${asset.id})}" class="btn btn-sm btn-secondary">Edit</a>
+                  <form th:action="@{/assets/{id}/delete(id=${asset.id})}" method="post"
+                        onsubmit="return confirm('Delete this asset? This cannot be undone.');">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" th:if="${assets.totalPages > 1}">
+        <span th:text="'Showing ' + (${assets.number * assets.size + 1}) + '–' + ${assets.number * assets.size + assets.numberOfElements} + ' of ' + ${assets.totalElements}"></span>
+        <div class="page-links">
+          <a th:if="${assets.hasPrevious()}" th:href="@{/assets(page=${assets.number - 1}, search=${search}, status=${filterStatus}, deviceType=${filterDeviceType}, departmentId=${filterDeptId})}">&lsaquo;</a>
+          <th:block th:each="i : ${#numbers.sequence(0, assets.totalPages - 1)}">
+            <span th:if="${i == assets.number}" class="current" th:text="${i + 1}"></span>
+            <a th:unless="${i == assets.number}" th:href="@{/assets(page=${i}, search=${search}, status=${filterStatus}, deviceType=${filterDeviceType}, departmentId=${filterDeptId})}" th:text="${i + 1}"></a>
+          </th:block>
+          <a th:if="${assets.hasNext()}" th:href="@{/assets(page=${assets.number + 1}, search=${search}, status=${filterStatus}, deviceType=${filterDeviceType}, departmentId=${filterDeptId})}">&rsaquo;</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

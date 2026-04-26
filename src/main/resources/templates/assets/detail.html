@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${asset.assetTag} + ' — Airtel IMS'">Asset Detail</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="sidebar">
+  <a class="sidebar-brand" th:href="@{/}"><div class="brand-icon">A</div><div class="brand-text"><span class="brand-name">Airtel IMS</span><span class="brand-sub">v1.0.0</span></div></a>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/dashboard}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a th:href="@{/assets}" class="active"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Assets</a>
+      <a th:href="@{/assignments}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>Issue / Return</a>
+    </nav>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Management</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/employees}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Employees</a>
+      <a th:href="@{/departments}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg>Departments</a>
+    </nav>
+  </div>
+  <div class="sidebar-footer"><div class="sidebar-footer-text">Airtel Rwanda · Offline Mode</div></div>
+</nav>
+
+<div class="main-wrapper">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title" th:text="${asset.assetTag}">Asset</span>
+      <span class="topbar-subtitle" th:text="${asset.brand + ' ' + asset.model}"></span>
+    </div>
+    <div class="topbar-right">
+      <a th:href="@{/assets/{id}/edit(id=${asset.id})}" class="btn btn-secondary">Edit</a>
+      <a th:href="@{/assets}" class="btn btn-secondary">← Back</a>
+    </div>
+  </div>
+
+  <main class="page-content">
+    <!-- Status Bar -->
+    <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <span th:with="s=${asset.status.name().toLowerCase().replace('_','-')}"
+            th:class="'badge badge-' + ${s}"
+            th:text="${asset.status.name().replace('_',' ')}"></span>
+      <span th:with="c=${asset.conditionStatus.name().toLowerCase().replace('_','-')}"
+            th:class="'badge badge-' + ${c}"
+            th:text="${asset.conditionStatus.name()}"></span>
+      <span th:with="t=${asset.deviceType.name().toLowerCase().replace('_','-')}"
+            th:class="'badge badge-' + ${t}"
+            th:text="${asset.deviceType.name().replace('_',' ')}"></span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <!-- Details Card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><span class="card-title-dot"></span>Device Details</span>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-key">Asset Tag</div><div class="detail-value text-mono" th:text="${asset.assetTag}"></div></div>
+          <div class="detail-item"><div class="detail-key">Serial Number</div><div class="detail-value text-mono" th:text="${asset.serialNumber}"></div></div>
+          <div class="detail-item"><div class="detail-key">Brand</div><div class="detail-value" th:text="${asset.brand}"></div></div>
+          <div class="detail-item"><div class="detail-key">Model</div><div class="detail-value" th:text="${asset.model}"></div></div>
+          <div class="detail-item"><div class="detail-key">Processor</div><div class="detail-value" th:text="${asset.processor ?: '—'}"></div></div>
+          <div class="detail-item"><div class="detail-key">RAM</div><div class="detail-value" th:text="${asset.ramGb != null ? asset.ramGb + ' GB' : '—'}"></div></div>
+          <div class="detail-item"><div class="detail-key">Storage</div><div class="detail-value" th:text="${asset.storageGb != null ? asset.storageGb + ' GB' : '—'}"></div></div>
+          <div class="detail-item"><div class="detail-key">OS</div><div class="detail-value" th:text="${asset.os ?: '—'}"></div></div>
+          <div class="detail-item"><div class="detail-key">Department</div><div class="detail-value" th:text="${asset.department != null ? asset.department.name : '—'}"></div></div>
+          <div class="detail-item"><div class="detail-key">Purchase Date</div><div class="detail-value" th:text="${asset.purchaseDate ?: '—'}"></div></div>
+          <div class="detail-item"><div class="detail-key">Warranty Expiry</div><div class="detail-value" th:text="${asset.warrantyExpiry ?: '—'}"></div></div>
+          <div class="detail-item"><div class="detail-key">Registered</div><div class="detail-value" th:text="${#temporals.format(asset.createdAt, 'dd MMM yyyy HH:mm')}"></div></div>
+        </div>
+        <div th:if="${asset.notes}" style="padding:14px 18px;border-top:1px solid var(--border);">
+          <div class="detail-key" style="margin-bottom:6px;">Notes</div>
+          <div style="font-size:13px;color:var(--charcoal);" th:text="${asset.notes}"></div>
+        </div>
+      </div>
+
+      <!-- Audit History -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><span class="card-title-dot"></span>Audit History</span>
+        </div>
+        <div class="audit-timeline">
+          <div th:if="${#lists.isEmpty(history)}" class="empty-state" style="padding:24px;">
+            <p>No history yet.</p>
+          </div>
+          <div th:each="log : ${history}" class="audit-item">
+            <div th:class="'audit-dot action-' + ${log.action}"></div>
+            <div class="audit-content">
+              <div class="audit-action" th:text="${log.action}"></div>
+              <div class="audit-desc" th:text="${log.description}"></div>
+              <div class="audit-meta" th:text="${#temporals.format(log.performedAt,'dd MMM yyyy HH:mm') + ' · ' + log.performedBy}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

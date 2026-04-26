@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Departments — Airtel IMS</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="sidebar">
+  <a class="sidebar-brand" th:href="@{/}"><div class="brand-icon">A</div><div class="brand-text"><span class="brand-name">Airtel IMS</span><span class="brand-sub">v1.0.0</span></div></a>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/dashboard}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a th:href="@{/assets}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Assets</a>
+      <a th:href="@{/assignments}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>Issue / Return</a>
+    </nav>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Management</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/employees}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Employees</a>
+      <a th:href="@{/departments}" class="active"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg>Departments</a>
+    </nav>
+  </div>
+  <div class="sidebar-footer"><div class="sidebar-footer-text">Airtel Rwanda · Offline Mode</div></div>
+</nav>
+
+<div class="main-wrapper">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">Departments</span>
+      <span class="topbar-subtitle">Organizational units</span>
+    </div>
+    <div class="topbar-right">
+      <a th:href="@{/departments/new}" class="btn btn-primary">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M12 4v16M4 12h16"/></svg>
+        Add Department
+      </a>
+    </div>
+  </div>
+
+  <main class="page-content">
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Name</th><th>Location</th><th>Created</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(departments)}">
+              <td colspan="5">
+                <div class="empty-state">
+                  <div class="empty-state-icon">🏢</div>
+                  <h3>No departments yet</h3>
+                  <p><a th:href="@{/departments/new}">Add your first department</a></p>
+                </div>
+              </td>
+            </tr>
+            <tr th:each="d : ${departments}">
+              <td class="text-mono text-sm" th:text="${d.id}"></td>
+              <td style="font-weight:600;" th:text="${d.name}"></td>
+              <td th:text="${d.location ?: '—'}"></td>
+              <td class="text-sm" th:text="${#temporals.format(d.createdAt, 'dd MMM yyyy')}"></td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <a th:href="@{/departments/{id}/edit(id=${d.id})}" class="btn btn-sm btn-secondary">Edit</a>
+                  <form th:action="@{/departments/{id}/delete(id=${d.id})}" method="post"
+                        onsubmit="return confirm('Delete this department?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

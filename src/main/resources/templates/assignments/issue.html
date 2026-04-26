@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Issue Equipment — Airtel IMS</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<nav class="sidebar">
+  <a class="sidebar-brand" th:href="@{/}"><div class="brand-icon">A</div><div class="brand-text"><span class="brand-name">Airtel IMS</span><span class="brand-sub">v1.0.0</span></div></a>
+  <div class="sidebar-section"><div class="sidebar-section-label">Main</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/dashboard}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a th:href="@{/assets}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Assets</a>
+      <a th:href="@{/assignments}" class="active"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>Issue / Return</a>
+    </nav>
+  </div>
+  <div class="sidebar-section"><div class="sidebar-section-label">Management</div>
+    <nav class="sidebar-nav">
+      <a th:href="@{/employees}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Employees</a>
+      <a th:href="@{/departments}"><svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg>Departments</a>
+    </nav>
+  </div>
+  <div class="sidebar-footer"><div class="sidebar-footer-text">Airtel Rwanda · Offline Mode</div></div>
+</nav>
+
+<div class="main-wrapper">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">Issue Equipment</span>
+      <span class="topbar-subtitle">Assign an available device to an employee</span>
+    </div>
+    <div class="topbar-right">
+      <a th:href="@{/assignments}" class="btn btn-secondary">← Back</a>
+    </div>
+  </div>
+
+  <main class="page-content">
+    <form th:action="@{/assignments/issue}" method="post">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title"><span class="card-title-dot"></span>Issue Details</span>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Asset to Issue <span class="required">*</span></label>
+              <select name="assetId" required>
+                <option value="">Select available asset…</option>
+                <option th:each="a : ${availableAssets}"
+                        th:value="${a.id}"
+                        th:text="${a.assetTag + ' — ' + a.brand + ' ' + a.model + ' (' + a.deviceType + ')'}"></option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Assign To (Employee) <span class="required">*</span></label>
+              <select name="employeeId" required>
+                <option value="">Select employee…</option>
+                <option th:each="e : ${employees}"
+                        th:value="${e.id}"
+                        th:text="${e.fullName + ' [' + e.employeeId + ']' + (e.department != null ? ' — ' + e.department.name : '')}"></option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Issued By <span class="required">*</span></label>
+              <input type="text" name="issuedBy" required placeholder="Name of person issuing the device"/>
+            </div>
+            <div class="form-group">
+              <label>Issue Date <span class="required">*</span></label>
+              <input type="date" name="issueDate" required th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"/>
+            </div>
+            <div class="form-group">
+              <label>Expected Return Date</label>
+              <input type="date" name="expectedReturnDate"/>
+            </div>
+            <div class="form-group">
+              <label>Condition at Issue <span class="required">*</span></label>
+              <select name="conditionOnIssue" required>
+                <option th:each="c : ${conditionStatuses}" th:value="${c}" th:text="${c.name()}"></option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label>Purpose / Reason</label>
+              <textarea name="purpose" placeholder="e.g. Remote work, Field assignment, Replacement device…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a th:href="@{/assignments}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" d="M5 13l4 4L19 7"/></svg>
+          Confirm Issue
+        </button>
+      </div>
+    </form>
+  </main>
+</div>
+</body>
+</html>
